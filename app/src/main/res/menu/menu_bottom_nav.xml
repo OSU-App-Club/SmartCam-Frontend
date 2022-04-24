@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_fragment_live"
+        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:title="@string/title_live" />
+
+    <item
+        android:id="@+id/nav_fragment_rec"
+        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:title="@string/title_rec" />
+
+    <item
+        android:id="@+id/nav_fragment_stats"
+        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:title="@string/title_stats" />
+
+    <item
+        android:id="@+id/nav_fragment_alerts"
+        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:title="@string/title_alerts" />
+
+</menu>
