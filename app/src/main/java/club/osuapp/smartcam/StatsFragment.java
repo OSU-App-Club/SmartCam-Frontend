@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.github.mikephil.charting.charts.LineChart;
+
 import club.osuapp.smartcam.databinding.FragmentStatsBinding;
 
 public class StatsFragment extends Fragment {
@@ -21,6 +23,9 @@ public class StatsFragment extends Fragment {
     ) {
 
         binding = FragmentStatsBinding.inflate(inflater, container, false);
+
+        LineChart chart = (LineChart) container.findViewById(R.id.chart);
+
         return binding.getRoot();
 
     }
