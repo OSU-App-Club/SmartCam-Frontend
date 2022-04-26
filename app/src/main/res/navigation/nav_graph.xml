@@ -3,26 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/nav_fragment_live">
 
     <fragment
-        android:id="@+id/FirstFragment"
-        android:name="club.osuapp.smartcam.FirstFragment"
-        android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first">
-
-        <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
-    </fragment>
+        android:id="@+id/nav_fragment_live"
+        android:name="club.osuapp.smartcam.LiveFragment"
+        android:label="@string/title_live"
+        tools:layout="@layout/fragment_live" />
     <fragment
-        android:id="@+id/SecondFragment"
-        android:name="club.osuapp.smartcam.SecondFragment"
-        android:label="@string/second_fragment_label"
-        tools:layout="@layout/fragment_second">
-
-        <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
-    </fragment>
+        android:id="@+id/nav_fragment_rec"
+        android:name="club.osuapp.smartcam.RecFragment"
+        android:label="@string/title_rec"
+        tools:layout="@layout/fragment_rec" />
+    <fragment
+        android:id="@+id/nav_fragment_stats"
+        android:name="club.osuapp.smartcam.StatsFragment"
+        android:label="@string/title_stats"
+        tools:layout="@layout/fragment_stats" />
+    <fragment
+        android:id="@+id/nav_fragment_alerts"
+        android:name="club.osuapp.smartcam.AlertsFragment"
+        android:label="@string/title_alerts"
+        tools:layout="@layout/fragment_alerts" />
 </navigation>
