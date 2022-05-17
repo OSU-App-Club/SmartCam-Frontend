@@ -12,6 +12,13 @@ import androidx.annotation.ContentView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.XAxis;
@@ -24,6 +31,10 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import club.osuapp.smartcam.databinding.FragmentStatsBinding;
 
@@ -40,22 +51,56 @@ public class StatsFragment extends Fragment {
     ) {
         super.onCreate(savedInstanceState);
 
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        String url = "https://osuapp.club/smartcam/people";
+
+        JsonArrayRequest arrayReq = new JsonArrayRequest(Request.Method.GET, url, null,
+            (Response.Listener) response -> {
+                //Turn off loading spinner, enable graph, load graph with data
+            }, (Response.ErrorListener) error -> {
+                //Turn off loading spinner, enable textview, set it to show error message
+            });
+
+        queue.add(arrayReq);
+
         binding = FragmentStatsBinding.inflate(inflater, container, false);
 
-        LineChart chart = (LineChart) container.findViewById(R.id.chart);
+        try {
+            JSONArray resp = new JSONArray("[\n" +
+                    "    {\n" +
+                    "        \"timestamp\": 1652136419,\n" +
+                    "        \"count\": 3\n" +
+                    "    },\n" +
+                    "    {\n" +
+                    "        \"timestamp\": 1652136465,\n" +
+                    "        \"count\": 5\n" +
+                    "    }\n" +
+                    "]");
 
-        ArrayList<Entry> people = new ArrayList<Entry>();
-        people.add(new Entry(0,10));
-        people.add(new Entry(1,30));
-        people.add(new Entry(2,20));
-        people.add(new Entry(4,15));
+            for (int i = 0; i < resp.length(); i++) {
+                JSONObject jobj = resp.getJSONObject(i);
+                int timestamp = jobj.getInt("timestamp");
+                int count = jobj.getInt("count");
 
-        LineDataSet setPeople1 = new LineDataSet(people, "People");
+                //Take these and make a new array out of them, then put it in the chart data
+            }
 
-        LineData data = new LineData(setPeople1);
-        chart.setData(data); //keeps crashing when this is run
-        chart.invalidate(); //and this one too
+            LineChart chart = (LineChart) container.findViewById(R.id.chart);
 
+            ArrayList<Entry> people = new ArrayList<Entry>();
+            people.add(new Entry(0,10));
+            people.add(new Entry(1,30));
+            people.add(new Entry(2,20));
+            people.add(new Entry(4,15));
+
+            LineDataSet setPeople1 = new LineDataSet(people, "People");
+
+            LineData data = new LineData(setPeople1);
+            chart.setData(data);
+            chart.invalidate();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         return binding.getRoot();
 
