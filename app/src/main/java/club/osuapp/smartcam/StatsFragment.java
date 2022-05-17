@@ -10,6 +10,7 @@ import java.util.List;
 
 import androidx.annotation.ContentView;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
@@ -51,19 +52,27 @@ public class StatsFragment extends Fragment {
     ) {
         super.onCreate(savedInstanceState);
 
+        binding = FragmentStatsBinding.inflate(inflater, container, false);
+
+        return binding.getRoot();
+
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         String url = "https://osuapp.club/smartcam/people";
 
         JsonArrayRequest arrayReq = new JsonArrayRequest(Request.Method.GET, url, null,
-            (Response.Listener) response -> {
-                //Turn off loading spinner, enable graph, load graph with data
-            }, (Response.ErrorListener) error -> {
-                //Turn off loading spinner, enable textview, set it to show error message
-            });
+                (Response.Listener) response -> {
+                    //Turn off loading spinner, enable graph, load graph with data
+                }, (Response.ErrorListener) error -> {
+            //Turn off loading spinner, enable textview, set it to show error message
+        });
 
         queue.add(arrayReq);
-
-        binding = FragmentStatsBinding.inflate(inflater, container, false);
 
         try {
             JSONArray resp = new JSONArray("[\n" +
@@ -85,13 +94,21 @@ public class StatsFragment extends Fragment {
                 //Take these and make a new array out of them, then put it in the chart data
             }
 
-            LineChart chart = (LineChart) container.findViewById(R.id.chart);
+            LineChart chart = (LineChart) view.findViewById(R.id.chart);
 
             ArrayList<Entry> people = new ArrayList<Entry>();
             people.add(new Entry(0,10));
             people.add(new Entry(1,30));
             people.add(new Entry(2,20));
-            people.add(new Entry(4,15));
+            people.add(new Entry(3,15));
+            people.add(new Entry(4,1));
+            people.add(new Entry(5,38));
+            people.add(new Entry(6,27));
+            people.add(new Entry(7,52));
+            people.add(new Entry(8,18));
+            people.add(new Entry(9,13));
+            people.add(new Entry(10,99));
+            people.add(new Entry(11,35));
 
             LineDataSet setPeople1 = new LineDataSet(people, "People");
 
@@ -101,17 +118,12 @@ public class StatsFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        return binding.getRoot();
-
     }
-
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
-
-
     }
 }
+
