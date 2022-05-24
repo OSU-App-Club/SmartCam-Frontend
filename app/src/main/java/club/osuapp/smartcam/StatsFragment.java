@@ -64,6 +64,12 @@ public class StatsFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        //Add date/time selectors to the fragment_stats.xml layout file
+        //Give those defaults (end=current time, start=1 hour ago)
+        //Whenever those are changed, update the URL and rerun the request
+        //Add a drop down to select between minutes, hours, days, months, years
+        //When that's changed, update the URL and rerun the request
+
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         String url = "http://159.65.110.8:5000/people?start=123&end=456&range=hourly";
 
@@ -98,29 +104,12 @@ public class StatsFragment extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-
+                    Log.e("StatsFragment", error.toString());
                 }
             }
         );
 
         queue.add(arrayReq);
-
-        try {
-            JSONArray resp = new JSONArray("[\n" +
-                    "    {\n" +
-                    "        \"timestamp\": 1652136419,\n" +
-                    "        \"count\": 3\n" +
-                    "    },\n" +
-                    "    {\n" +
-                    "        \"timestamp\": 1652136465,\n" +
-                    "        \"count\": 5\n" +
-                    "    }\n" +
-                    "]");
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
