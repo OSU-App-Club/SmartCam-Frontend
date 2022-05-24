@@ -2,9 +2,11 @@ package club.osuapp.smartcam;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,14 +65,43 @@ public class StatsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        String url = "https://osuapp.club/smartcam/people";
+        String url = "http://159.65.110.8:5000/people?start=123&end=456&range=hourly";
 
         JsonArrayRequest arrayReq = new JsonArrayRequest(Request.Method.GET, url, null,
-                (Response.Listener) response -> {
-                    //Turn off loading spinner, enable graph, load graph with data
-                }, (Response.ErrorListener) error -> {
-            //Turn off loading spinner, enable textview, set it to show error message
-        });
+            new Response.Listener<JSONArray>() {
+                @Override
+                public void onResponse(JSONArray resp) {
+                    try {
+                        ArrayList<Entry> people = new ArrayList<Entry>();
+
+                        for (int i = 0; i < resp.length(); i++) {
+                            JSONObject jobj = resp.getJSONObject(i);
+                            int timestamp = jobj.getInt("timestamp");
+                            int count = jobj.getInt("count");
+
+                            people.add(new Entry(timestamp, count));
+
+                            //Take these and make a new array out of them, then put it in the chart data
+                        }
+
+                        LineChart chart = (LineChart) view.findViewById(R.id.chart);
+
+                        LineDataSet setPeople1 = new LineDataSet(people, "People");
+
+                        LineData data = new LineData(setPeople1);
+                        chart.setData(data);
+                        chart.invalidate();
+                    } catch (JSONException e) {
+                        Log.e("StatsFragment", e.toString());
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            }
+        );
 
         queue.add(arrayReq);
 
@@ -86,35 +117,7 @@ public class StatsFragment extends Fragment {
                     "    }\n" +
                     "]");
 
-            for (int i = 0; i < resp.length(); i++) {
-                JSONObject jobj = resp.getJSONObject(i);
-                int timestamp = jobj.getInt("timestamp");
-                int count = jobj.getInt("count");
 
-                //Take these and make a new array out of them, then put it in the chart data
-            }
-
-            LineChart chart = (LineChart) view.findViewById(R.id.chart);
-
-            ArrayList<Entry> people = new ArrayList<Entry>();
-            people.add(new Entry(0,10));
-            people.add(new Entry(1,30));
-            people.add(new Entry(2,20));
-            people.add(new Entry(3,15));
-            people.add(new Entry(4,1));
-            people.add(new Entry(5,38));
-            people.add(new Entry(6,27));
-            people.add(new Entry(7,52));
-            people.add(new Entry(8,18));
-            people.add(new Entry(9,13));
-            people.add(new Entry(10,99));
-            people.add(new Entry(11,35));
-
-            LineDataSet setPeople1 = new LineDataSet(people, "People");
-
-            LineData data = new LineData(setPeople1);
-            chart.setData(data);
-            chart.invalidate();
         } catch (JSONException e) {
             e.printStackTrace();
         }
