@@ -13,4 +13,12 @@
     <string name="rec_fragment_text">Hello rec fragment</string>
     <string name="stats_fragment_text">Hello stats fragment</string>
     <string name="alerts_fragment_text">Hello alerts fragment</string>
+
+    <string-array name="spinner_options">
+        <item>minutely</item>
+        <item>hourly</item>
+        <item>daily</item>
+        <item>monthly</item>
+        <item>yearly</item>
+    </string-array>
 </resources>
