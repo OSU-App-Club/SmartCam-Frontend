@@ -1,11 +1,16 @@
 package club.osuapp.smartcam;
 
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +50,11 @@ public class StatsFragment extends Fragment {
 
     private FragmentStatsBinding binding;
     private LineChart chart;
+    DatePickerDialog datePicker;
+    EditText edText;
+    Button bttn;
+    TextView textView;
+
 
 
     @Override
@@ -69,6 +79,9 @@ public class StatsFragment extends Fragment {
         //Whenever those are changed, update the URL and rerun the request
         //Add a drop down to select between minutes, hours, days, months, years
         //When that's changed, update the URL and rerun the request
+
+
+        //endDate = view.findViewById(R.id.end_button);
 
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         String url = "http://159.65.110.8:5000/people?start=123&end=456&range=hourly";
@@ -117,5 +130,7 @@ public class StatsFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
+
 }
 
