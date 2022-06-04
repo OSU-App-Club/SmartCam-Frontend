@@ -3,6 +3,7 @@ package club.osuapp.smartcam;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -18,9 +19,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.logging.SimpleFormatter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,9 +37,18 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.renderer.XAxisRenderer;
+import com.github.mikephil.charting.utils.MPPointF;
+import com.github.mikephil.charting.utils.Transformer;
+import com.github.mikephil.charting.utils.Utils;
+import com.github.mikephil.charting.utils.ViewPortHandler;
 
 
 import org.json.JSONArray;
@@ -53,8 +65,11 @@ public class StatsFragment extends Fragment {
     Button bttn;
     TextView textView;
 
-    Calendar startDate = Calendar.getInstance();
-    Calendar endDate = Calendar.getInstance();
+    Calendar startDate;
+    Calendar endDate;
+
+    SimpleDateFormat dateFormatter = new SimpleDateFormat("MMMM d, yyyy h:mm a");;
+
     String detailSelection = "minutely";
 
     @Override
@@ -64,7 +79,15 @@ public class StatsFragment extends Fragment {
     ) {
         super.onCreate(savedInstanceState);
 
+        startDate = Calendar.getInstance();
+        endDate = Calendar.getInstance();
+
+        startDate.add(Calendar.HOUR, -1);
+
         binding = FragmentStatsBinding.inflate(inflater, container, false);
+
+        binding.startDateDisplay.setText("Start: " + dateFormatter.format(startDate.getTime()));
+        binding.endDateDisplay.setText("End: " + dateFormatter.format(endDate.getTime()));
 
         binding.button1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,6 +116,8 @@ public class StatsFragment extends Fragment {
                             public void onTimeSet(TimePicker timePicker, int hour, int minute) {
                                 startDate.set(Calendar.HOUR_OF_DAY, hour);
                                 startDate.set(Calendar.MINUTE, minute);
+
+                                binding.startDateDisplay.setText("Start: " + dateFormatter.format(startDate.getTime()));
 
                                 RunDataQuery();
                             }
@@ -131,6 +156,8 @@ public class StatsFragment extends Fragment {
                             public void onTimeSet(TimePicker timePicker, int hour, int minute) {
                                 endDate.set(Calendar.HOUR_OF_DAY, hour);
                                 endDate.set(Calendar.MINUTE, minute);
+
+                                binding.endDateDisplay.setText("End: " + dateFormatter.format(endDate.getTime()));
 
                                 RunDataQuery();
                             }
@@ -218,6 +245,11 @@ public class StatsFragment extends Fragment {
                             }
 
                             LineChart chart = binding.chart;
+                            chart.getXAxis().setValueFormatter(new MyXAxisValueFormatter());
+                            chart.setXAxisRenderer(new CustomXAxisRenderer(chart.getViewPortHandler(), chart.getXAxis(), chart.getTransformer(YAxis.AxisDependency.LEFT)
+                            ));
+                            chart.setExtraTopOffset(15);
+                            chart.getDescription().setEnabled(false);
 
                             LineDataSet setPeople1 = new LineDataSet(people, "People");
 
@@ -242,5 +274,29 @@ public class StatsFragment extends Fragment {
         );
 
         queue.add(arrayReq);
+    }
+}
+
+class MyXAxisValueFormatter extends ValueFormatter {
+
+    @Override
+    public String getAxisLabel(float value, AxisBase axis) {
+        SimpleDateFormat sdf = new SimpleDateFormat("MMMM d\nh:mm a");
+
+        return sdf.format(new Date((long) value * 1000));
+    }
+
+}
+
+class CustomXAxisRenderer extends XAxisRenderer {
+    public CustomXAxisRenderer(ViewPortHandler viewPortHandler, XAxis xAxis, Transformer trans) {
+        super(viewPortHandler, xAxis, trans);
+    }
+
+    @Override
+    protected void drawLabel(Canvas c, String formattedLabel, float x, float y, MPPointF anchor, float angleDegrees) {
+        String line[] = formattedLabel.split("\n");
+        Utils.drawXAxisValue(c, line[0], x, y - mAxisLabelPaint.getTextSize(), mAxisLabelPaint, anchor, angleDegrees);
+        Utils.drawXAxisValue(c, line[1], x, y, mAxisLabelPaint, anchor, angleDegrees);
     }
 }
