@@ -1,5 +1,8 @@
 package club.osuapp.smartcam;
 
+import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
+
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.amazonaws.services.kinesisvideoarchivedmedia.AWSKinesisVideoArchivedMediaClient;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -23,18 +27,40 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.rtsp.RtspMediaSource;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
+
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.kinesisvideo.AWSKinesisVideoClient;
+import com.amazonaws.services.kinesisvideo.model.GetDataEndpointRequest;
+import com.amazonaws.services.kinesisvideo.model.GetDataEndpointResult;
+import com.amazonaws.services.kinesisvideoarchivedmedia.AWSKinesisVideoArchivedMediaClient;
+import com.amazonaws.services.kinesisvideoarchivedmedia.model.GetHLSStreamingSessionURLRequest;
+import com.amazonaws.services.kinesisvideoarchivedmedia.model.GetHLSStreamingSessionURLResult;
+import com.amazonaws.services.kinesisvideoarchivedmedia.model.HLSDiscontinuityMode;
+import com.amazonaws.services.kinesisvideoarchivedmedia.model.HLSFragmentSelector;
+import com.amazonaws.services.kinesisvideoarchivedmedia.model.HLSFragmentSelectorType;
+import com.amazonaws.services.kinesisvideoarchivedmedia.model.HLSTimestampRange;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.concurrent.CompletableFuture;
 
 import club.osuapp.smartcam.databinding.FragmentLiveBinding;
 
 public class LiveFragment extends Fragment {
-
+    private static final String TAG  = MainActivity.class.getSimpleName();
     private FragmentLiveBinding binding;
 
     @Override
@@ -61,6 +87,57 @@ public class LiveFragment extends Fragment {
         player.setMediaItem(mediaItem);
         player.prepare();
         player.play();*/
+        CompletableFuture.runAsync(() -> {
+
+            BasicAWSCredentials cred = new BasicAWSCredentials("AKIA6HO33SN7DL5TFMDS", "VoQDQrm1KOYo2QAt9SWiuRIdx5VFbuYy7NdOZH9F");
+
+            AWSKinesisVideoClient kinesisVideo = new AWSKinesisVideoClient(cred);
+            kinesisVideo.setRegion(Region.getRegion(Regions.US_WEST_2));
+
+            GetDataEndpointResult var10000 = kinesisVideo.getDataEndpoint((new GetDataEndpointRequest()).withStreamName("Test").withAPIName("GET_HLS_STREAMING_SESSION_URL"));
+            String endpoint = var10000.getDataEndpoint();
+            Log.i(TAG, "endpoint: " + endpoint);
+
+            AWSKinesisVideoArchivedMediaClient kinesisVideoArchivedContent = new AWSKinesisVideoArchivedMediaClient(cred);
+            kinesisVideoArchivedContent.setRegion(Region.getRegion(Regions.US_WEST_2));
+            kinesisVideoArchivedContent.setEndpoint(endpoint);
+
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+            //change later
+            String text = "2022-06-04T14:14";
+            try {
+                Date date = formatter.parse(text);
+
+                GetHLSStreamingSessionURLRequest request = (new GetHLSStreamingSessionURLRequest())
+                        .withStreamName("Test")
+                        .withPlaybackMode("LIVE_REPLAY")
+                        .withDiscontinuityMode(HLSDiscontinuityMode.ALWAYS)
+                        .withHLSFragmentSelector((new HLSFragmentSelector())
+                                .withFragmentSelectorType(HLSFragmentSelectorType.SERVER_TIMESTAMP)
+                                .withTimestampRange((new HLSTimestampRange())
+                                        .withStartTimestamp(date)));
+
+                try {
+                    GetHLSStreamingSessionURLResult var12 = kinesisVideoArchivedContent.getHLSStreamingSessionURL(request);
+                    String streamUrl = var12.getHLSStreamingSessionURL();
+                    Log.i(TAG, "stream url: " + streamUrl);
+                    runOnUiThread(() -> {
+                        MediaSource mediaSource =
+                                new RtspMediaSource.Factory()
+                                        .createMediaSource(MediaItem.fromUri(streamUrl));
+                       // MediaItem mediaItem = MediaItem.fromUri(streamUrl);
+                        player.setMediaSource(mediaSource);
+                        //player.setMediaItem(mediaItem);
+                        player.prepare();
+                        player.play();
+                    });
+                } catch (Exception exception) {
+                    Log.i(TAG, "Error: " + exception.getLocalizedMessage());
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
 
