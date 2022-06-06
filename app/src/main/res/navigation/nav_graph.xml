@@ -20,9 +20,4 @@
         android:name="club.osuapp.smartcam.StatsFragment"
         android:label="@string/title_stats"
         tools:layout="@layout/fragment_stats" />
-    <fragment
-        android:id="@+id/nav_fragment_alerts"
-        android:name="club.osuapp.smartcam.AlertsFragment"
-        android:label="@string/title_alerts"
-        tools:layout="@layout/fragment_alerts" />
 </navigation>

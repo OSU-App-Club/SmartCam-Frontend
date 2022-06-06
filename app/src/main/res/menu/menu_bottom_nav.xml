@@ -15,9 +15,4 @@
         android:icon="@drawable/ic_dashboard_black_24dp"
         android:title="@string/title_stats" />
 
-    <item
-        android:id="@+id/nav_fragment_alerts"
-        android:icon="@drawable/ic_dashboard_black_24dp"
-        android:title="@string/title_alerts" />
-
 </menu>
