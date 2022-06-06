@@ -82,7 +82,7 @@ public class StatsFragment extends Fragment {
         startDate = Calendar.getInstance();
         endDate = Calendar.getInstance();
 
-        startDate.add(Calendar.HOUR, -1);
+        startDate.add(Calendar.HOUR, -8);
 
         binding = FragmentStatsBinding.inflate(inflater, container, false);
 
@@ -199,15 +199,6 @@ public class StatsFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        //change startDate default to current time - 1 hour
-        //error messages
-        //add date as text above buttons
-
-
-        //endDate = view.findViewById(R.id.end_button);
-
-
     }
 
     @Override
@@ -219,6 +210,7 @@ public class StatsFragment extends Fragment {
     public void RunDataQuery() {
         binding.statsQueryLoading.setVisibility(View.VISIBLE);
         binding.chart.setVisibility(View.INVISIBLE);
+        binding.statsErrorText.setVisibility(View.INVISIBLE);
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         long startDateEpoch = startDate.getTimeInMillis() / 1000;
         long endDateEpoch = endDate.getTimeInMillis() / 1000;
@@ -230,7 +222,7 @@ public class StatsFragment extends Fragment {
                     public void onResponse(JSONArray resp) {
                         try {
                             if (resp.length() == 0) {
-                                //Show error text
+                                ShowErrorText("No data to display for this time period");
                                 return;
                             }
 
@@ -261,19 +253,25 @@ public class StatsFragment extends Fragment {
                             binding.chart.setVisibility(View.VISIBLE);
                         } catch (JSONException e) {
                             Log.e("StatsFragment", e.toString());
-                            //Show error text
+                            ShowErrorText(e.toString());
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e("StatsFragment", error.toString());
-                //Show error text
+                ShowErrorText(error.toString());
             }
         }
         );
 
         queue.add(arrayReq);
+    }
+
+    private void ShowErrorText(String s) {
+        binding.statsQueryLoading.setVisibility(View.INVISIBLE);
+        binding.statsErrorText.setVisibility(View.VISIBLE);
+        binding.statsErrorText.setText(s);
     }
 }
 
