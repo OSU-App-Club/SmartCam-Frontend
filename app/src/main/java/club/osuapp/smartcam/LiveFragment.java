@@ -45,6 +45,7 @@ import com.amazonaws.services.kinesisvideoarchivedmedia.model.HLSDiscontinuityMo
 import com.amazonaws.services.kinesisvideoarchivedmedia.model.HLSFragmentSelector;
 import com.amazonaws.services.kinesisvideoarchivedmedia.model.HLSFragmentSelectorType;
 import com.amazonaws.services.kinesisvideoarchivedmedia.model.HLSTimestampRange;
+import com.google.android.exoplayer2.util.MimeTypes;
 
 
 import org.json.JSONArray;
@@ -104,38 +105,33 @@ public class LiveFragment extends Fragment {
 
             @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
             //change later
-            String text = "2022-06-04T14:14";
+            String text = "2022-06-06T18:43";
+            Date date = new Date();
+
+            GetHLSStreamingSessionURLRequest request = (new GetHLSStreamingSessionURLRequest())
+                    .withStreamName("Test")
+                    .withPlaybackMode("LIVE")
+                    .withDiscontinuityMode(HLSDiscontinuityMode.ALWAYS)
+                    .withHLSFragmentSelector((new HLSFragmentSelector())
+                            .withFragmentSelectorType(HLSFragmentSelectorType.SERVER_TIMESTAMP));
+
             try {
-                Date date = formatter.parse(text);
-
-                GetHLSStreamingSessionURLRequest request = (new GetHLSStreamingSessionURLRequest())
-                        .withStreamName("Test")
-                        .withPlaybackMode("LIVE_REPLAY")
-                        .withDiscontinuityMode(HLSDiscontinuityMode.ALWAYS)
-                        .withHLSFragmentSelector((new HLSFragmentSelector())
-                                .withFragmentSelectorType(HLSFragmentSelectorType.SERVER_TIMESTAMP)
-                                .withTimestampRange((new HLSTimestampRange())
-                                        .withStartTimestamp(date)));
-
-                try {
-                    GetHLSStreamingSessionURLResult var12 = kinesisVideoArchivedContent.getHLSStreamingSessionURL(request);
-                    String streamUrl = var12.getHLSStreamingSessionURL();
-                    Log.i(TAG, "stream url: " + streamUrl);
-                    runOnUiThread(() -> {
-                        MediaSource mediaSource =
-                                new RtspMediaSource.Factory()
-                                        .createMediaSource(MediaItem.fromUri(streamUrl));
-                       // MediaItem mediaItem = MediaItem.fromUri(streamUrl);
-                        player.setMediaSource(mediaSource);
-                        //player.setMediaItem(mediaItem);
-                        player.prepare();
-                        player.play();
-                    });
-                } catch (Exception exception) {
-                    Log.i(TAG, "Error: " + exception.getLocalizedMessage());
-                }
-            } catch (ParseException e) {
-                e.printStackTrace();
+                GetHLSStreamingSessionURLResult var12 = kinesisVideoArchivedContent.getHLSStreamingSessionURL(request);
+                String streamUrl = var12.getHLSStreamingSessionURL();
+                Log.i(TAG, "stream url: " + streamUrl);
+                runOnUiThread(() -> {
+//                        MediaSource mediaSource =
+//                                new RtspMediaSource.Factory()
+//                                        .createMediaSource(MediaItem.fromUri(streamUrl));
+                    MediaItem mediaItem = new MediaItem.Builder().setUri(streamUrl).setMimeType(MimeTypes.APPLICATION_M3U8).build();
+                    //MediaItem mediaItem = MediaItem.fromUri(streamUrl);
+//                        player.setMediaSource(mediaSource);
+                    player.setMediaItem(mediaItem);
+                    player.prepare();
+                    player.play();
+                });
+            } catch (Exception exception) {
+                Log.i(TAG, "Error: " + exception.getLocalizedMessage());
             }
         });
     }
