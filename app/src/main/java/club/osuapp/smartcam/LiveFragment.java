@@ -89,7 +89,7 @@ public class LiveFragment extends Fragment {
         player.play();*/
         CompletableFuture.runAsync(() -> {
 
-            BasicAWSCredentials cred = new BasicAWSCredentials("AKIA6HO33SN7DL5TFMDS", "VoQDQrm1KOYo2QAt9SWiuRIdx5VFbuYy7NdOZH9F");
+            BasicAWSCredentials cred = new BasicAWSCredentials("AKIA6HO33SN7ILNQMWGX", "o2hFVg6z8xjVbbC9rnLhOpsqIY9MzEBqfUwFA3QU");
 
             AWSKinesisVideoClient kinesisVideo = new AWSKinesisVideoClient(cred);
             kinesisVideo.setRegion(Region.getRegion(Regions.US_WEST_2));
